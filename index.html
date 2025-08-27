@@ -1,58 +1,291 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <title>Everson IA</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <Script src="https://cdn.tailwindcss.com"></Script>
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-            body {
-                font-family: 'Inter', sans-serif;
-                background-color: #1a202c; /*cor de fundo escura*/
-                color: #e2f8f0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-            }
-        </style>
-    </head>
-    <body>
-        <!-- Container for main application -->
-        <div class="bg-gray-800 p-8 rounded-x1 shadow-2x1 max-w-lg w-full text-center border-2  border-purple-600">
-            <h1 class="text-4x1 font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
-                Gerador de Imagens
-            </h1>
-            <p class="text-gray-400 mb-6">
-                Digite seu prompt abaixo e gere sua imagem.
-            </p>
-            <!-- container for input and button -->
-             <div class="space-y-4">
-                <textarea id="promptinput" rows="4" class="w-full p-4 rounded-lg bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-purple-500 transition duration-300" placeholder="Digite sua ideia aqui"></textarea>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Imagens</title>
+    <!-- Use o CDN do Tailwind para estilização rápida e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Cor de fundo escura */
+            color: #e2e8f0; /* Cor de texto clara */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main application container -->
+    <div class="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-lg w-full text-center border-2 border-purple-600">
+        <h1 class="text-4xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
+            Gerador de Imagens
+        </h1>
+        <p class="text-gray-400 mb-6">
+            Digite um prompt abaixo e gere sua imagem.
+        </p>
 
-                <button id="generateBtn" class="w-full py-3 px-6 rounded-lg font-bold text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-300 transform hover:scale-105">
-                   Gerar Imagem 
+        <!-- Container for input and buttons -->
+        <div class="space-y-4">
+            <textarea id="promptInput" rows="4" class="w-full p-4 rounded-lg bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300" placeholder="Uma caveira samurai, arte digital, capacete kabuto, iluminação dramática, alta resolução"></textarea>
+
+            <!-- Gemini-powered buttons -->
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                <button id="suggestBtn" class="w-full py-3 px-6 rounded-lg font-bold text-white bg-gradient-to-r from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition duration-300 transform hover:scale-105">
+                    ✨ Sugerir Prompt ✨
+                </button>
+                <button id="enhanceBtn" class="w-full py-3 px-6 rounded-lg font-bold text-white bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-300 transform hover:scale-105">
+                    ✨ Aprimorar Prompt ✨
+                </button>
+            </div>
+            
+            <!-- New Stable Diffusion button -->
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                <button id="stableDiffusionBtn" class="w-full py-3 px-6 rounded-lg font-bold text-white bg-gradient-to-r from-green-500 to-cyan-500 hover:from-green-600 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 transform hover:scale-105">
+                    ✨ Usar Stable Diffusion ✨
                 </button>
             </div>
 
-            <!-- Image and loading container -->
-            <div id="imageContainer" class="mt-8 relative flex justify-center items-center bg-gray-900 rounded-lg p-4 border border-gray-700" style="min-height: 400px;">
-                <!-- Loading indicator -->
-                <div id="loadingIndicator" class="hidden flex-col items-center">
-                <div class="animate-spin rounded-full h-12 w-12 border-4 border-t-4 border-purple-500 border-opacity-75 mb-4"></div>
-                <p class="text-gray-400 ">Gerando Imagem...</p>
-                </div>
-                <!-- Image display -->
-                <img id="generatedImage" class="w-full h-auto rounded-lg shadow-x1" style="display: none;">
-                <p id="placeholderText" class="text-gray-500 text-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Sua imagem aparecerá aqui.</p>   
+            <!-- Main image generation button -->
+            <button id="generateBtn" class="w-full py-3 px-6 rounded-lg font-bold text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-300 transform hover:scale-105">
+                Gerar Imagem
+            </button>
+        </div>
 
+        <!-- Image and loading container -->
+        <div id="imageContainer" class="mt-8 relative flex justify-center items-center bg-gray-900 rounded-lg p-4 border border-gray-700" style="min-height: 400px;">
+            <!-- Loading indicator -->
+            <div id="loadingIndicator" class="hidden flex-col items-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-t-4 border-purple-500 border-opacity-75 mb-4"></div>
+                <p id="loadingText" class="text-gray-400">Gerando imagem...</p>
+            </div>
+            <!-- Image display -->
+            <img id="generatedImage" class="w-full h-auto rounded-lg shadow-xl" style="display: none;">
+            <p id="placeholderText" class="text-gray-500 text-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">Sua imagem aparecerá aqui.</p>
+        </div>
+
+        <!-- Custom message box for errors -->
+        <div id="messageBox" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-gray-700 p-6 rounded-lg shadow-xl text-center max-w-sm">
+                <p id="messageText" class="text-lg font-semibold mb-4 text-gray-200"></p>
+                <button id="closeMessageBtn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg transition duration-300">
+                    OK
+                </button>
             </div>
         </div>
+    </div>
+
+    <script>
+        // Get references to all necessary HTML elements
+        const promptInput = document.getElementById('promptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const suggestBtn = document.getElementById('suggestBtn');
+        const enhanceBtn = document.getElementById('enhanceBtn');
+        const stableDiffusionBtn = document.getElementById('stableDiffusionBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const loadingText = document.getElementById('loadingText');
+        const generatedImage = document.getElementById('generatedImage');
+        const placeholderText = document.getElementById('placeholderText');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const closeMessageBtn = document.getElementById('closeMessageBtn');
+
+        // Function to show a custom message box
+        function showMessageBox(message) {
+            messageText.innerText = message;
+            messageBox.style.display = 'flex';
+        }
+
+        // Event listener to close the message box
+        closeMessageBtn.addEventListener('click', () => {
+            messageBox.style.display = 'none';
+        });
+
+        // Set the API key and URLs for the Gemini models
+        // The API key is provided automatically by the canvas environment
+        const apiKey = ""; 
+        const imageApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+        const textApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        /**
+         * Generic function to handle API calls with exponential backoff.
+         * @param {string} url - The API endpoint URL.
+         * @param {object} payload - The body of the request.
+         * @param {string} loadingMsg - The message to display during loading.
+         * @param {number} [maxRetries=3] - Maximum number of retries.
+         * @param {number} [initialDelay=1000] - Initial delay in milliseconds for retries.
+         * @returns {Promise<object>} The JSON response from the API.
+         */
+        async function fetchWithRetry(url, payload, loadingMsg, maxRetries = 3, initialDelay = 1000) {
+            // Check if API key is missing, which happens in a local environment.
+            if (!apiKey) {
+                showMessageBox("Erro: A chave da API está em falta. O código foi feito para o ambiente Canvas. Para executá-lo localmente, você precisa de sua própria chave da API do Google Cloud.");
+                loadingIndicator.style.display = 'none';
+                throw new Error("API key is missing.");
+            }
+            loadingText.innerText = loadingMsg;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error during API call:', error);
+                    if (i < maxRetries - 1) {
+                        const delay = initialDelay * Math.pow(2, i);
+                        console.log(`Retrying in ${delay}ms...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Asynchronously generates an image based on the current prompt.
+         */
+        async function generateImage() {
+            // Get the current prompt from the input field
+            const prompt = promptInput.value.trim();
+            if (prompt === '') {
+                placeholderText.innerText = "Por favor, digite um prompt.";
+                placeholderText.style.display = 'block';
+                return;
+            }
+
+            placeholderText.style.display = 'none';
+            generatedImage.style.display = 'none';
+            loadingIndicator.style.display = 'flex';
+
+            const payload = {
+                instances: [{
+                    prompt: prompt
+                }],
+                parameters: {
+                    sampleCount: 1
+                }
+            };
+            
+            try {
+                const result = await fetchWithRetry(imageApiUrl, payload, "Gerando imagem...");
+                if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+                    const base64Data = result.predictions[0].bytesBase64Encoded;
+                    const imageUrl = `data:image/png;base64,${base64Data}`;
+                    generatedImage.src = imageUrl;
+                    generatedImage.style.display = 'block';
+                } else {
+                    throw new Error("Invalid response format from the image API.");
+                }
+            } catch (error) {
+                placeholderText.innerText = "Falha ao gerar a imagem. Por favor, tente novamente.";
+                placeholderText.style.display = 'block';
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
         
-        <script>
-            //Get references to all necessary Html elements
-            const promptinput = document.getElementById('promptInput');
-        </script>
-    </body>
+        /**
+         * Asynchronously suggests a creative prompt using the Gemini API.
+         */
+        async function suggestPrompt() {
+            loadingIndicator.style.display = 'flex';
+            
+            const systemPrompt = "Você é um assistente criativo que gera prompts de imagem para uma IA. Forneça um prompt de imagem detalhado e visualmente interessante. O prompt deve ser em português.";
+            const userQuery = "Sugira um prompt de imagem criativo e original, com foco em arte digital, fantasia, ou ficção científica.";
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            try {
+                const result = await fetchWithRetry(textApiUrl, payload, "Sugerindo um prompt...");
+                const suggestedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (suggestedText) {
+                    promptInput.value = suggestedText;
+                } else {
+                    throw new Error("Invalid response format from the text API.");
+                }
+            } catch (error) {
+                console.error("Failed to suggest prompt:", error);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        /**
+         * Asynchronously enhances the current prompt using the Gemini API.
+         */
+        async function enhancePrompt() {
+            const prompt = promptInput.value.trim();
+            if (prompt === '') {
+                return; // Do nothing if prompt is empty
+            }
+            
+            loadingIndicator.style.display = 'flex';
+
+            const systemPrompt = "Você é um especialista em prompts de IA. Aprimore e expanda o prompt de imagem fornecido pelo utilizador, adicionando detalhes, estilo, iluminação e elementos visuais que o tornem mais rico e específico para a geração de arte digital. Mantenha o foco original. O prompt deve ser em português.";
+            const userQuery = `Aprimore o seguinte prompt: "${prompt}"`;
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            try {
+                const result = await fetchWithRetry(textApiUrl, payload, "Aprimorando prompt...");
+                const enhancedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (enhancedText) {
+                    promptInput.value = enhancedText;
+                } else {
+                    throw new Error("Invalid response format from the text API.");
+                }
+            } catch (error) {
+                console.error("Failed to enhance prompt:", error);
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        /**
+         * Sets the prompt to a typical Stable Diffusion format.
+         */
+        function setStableDiffusionPrompt() {
+            const currentPrompt = promptInput.value.trim();
+            const sdPrompt = `Uma caveira samurai, estilo arte digital, capacete kabuto, armadura intricada, iluminação cinematográfica, renderização 8k, --negativo: rosto humano, cores desbotadas, distorcido, ruído`;
+            promptInput.value = sdPrompt;
+
+            const originalPlaceholder = placeholderText.innerText;
+            placeholderText.innerText = "O prompt foi formatado para o Stable Diffusion. Clique em 'Gerar Imagem' para usar este prompt.";
+            placeholderText.style.display = 'block';
+            setTimeout(() => {
+                placeholderText.innerText = originalPlaceholder;
+            }, 5000); // Reset the message after 5 seconds
+        }
+
+        // Add event listeners to the buttons
+        generateBtn.addEventListener('click', generateImage);
+        suggestBtn.addEventListener('click', suggestPrompt);
+        enhanceBtn.addEventListener('click', enhancePrompt);
+        stableDiffusionBtn.addEventListener('click', setStableDiffusionPrompt);
+
+        // Set a default prompt and generate an initial image when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            promptInput.value = "Uma caveira samurai";
+            generateImage();
+        });
+
+    </script>
+</body>
 </html>
